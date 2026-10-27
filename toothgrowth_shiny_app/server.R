@@ -42,10 +42,15 @@ server <- function(input, output, session) {
     selected_mean <- mean(selected_data()$len)
     other <- if (input$supp == "OJ") "VC" else "OJ"
     other_mean <- mean(subset(d, supp == other)$len)
+    comparison_ci <- if (input$supp == "OJ") {
+      fit$conf.int
+    } else {
+      c(-fit$conf.int[2], -fit$conf.int[1])
+    }
     cat(sprintf("At %.1f mg/day, the observed mean difference (%s minus %s) is %.2f units.\n",
                 as.numeric(input$dose), input$supp, other, selected_mean - other_mean))
-    cat(sprintf("Welch two-sample t-test: 95%% CI for OJ - VC = [%.2f, %.2f], p = %.4f.\n",
-                fit$conf.int[1], fit$conf.int[2], fit$p.value))
+    cat(sprintf("Welch two-sample t-test: 95%% CI for %s - %s = [%.2f, %.2f], p = %.4f.\n",
+                input$supp, other, comparison_ci[1], comparison_ci[2], fit$p.value))
     cat("Interpret the interval as uncertainty about the population mean difference under independent, approximately normal groups; it is not a measure of individual response.")
   })
 
