@@ -1,0 +1,78 @@
+@media (max-width: 700px) {
+  html, body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+
+  slides {
+    position: relative !important;
+    display: block !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    transform: none !important;
+  }
+
+  slides > slide {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    margin: 0 !important;
+    padding: 20px !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+    transform: none !important;
+  }
+
+  slides > slide:not(.current) {
+    display: none !important;
+  }
+
+  slides > slide.current {
+    display: block !important;
+  }
+
+  slides > slide > article {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: calc(100vh - 110px) !important;
+    overflow-y: auto !important;
+    box-sizing: border-box !important;
+  }
+
+  slides > slide hgroup {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+  }
+
+  slides > slide h1,
+  slides > slide h2,
+  slides > slide h3,
+  slides > slide p,
+  slides > slide ul,
+  slides > slide ol {
+    max-width: 100% !important;
+    overflow-wrap: anywhere;
+  }
+
+  slides img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  slides > slide.title-slide {
+    padding: 10vh 8vw !important;
+  }
+}
+
