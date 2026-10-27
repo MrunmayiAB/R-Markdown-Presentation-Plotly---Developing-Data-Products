@@ -1,0 +1,87 @@
+---
+title: "ToothGrowth Explorer"
+subtitle: "A small interactive guide to dose and supplement"
+author: "Mrunmayi A Bhave"
+date: "October 28, 2026"
+output:
+  ioslides_presentation:
+    widescreen: true
+    smaller: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+data("ToothGrowth", package = "datasets")
+tg <- ToothGrowth
+tg$supp <- factor(tg$supp, levels = c("OJ", "VC"))
+means <- aggregate(len ~ dose + supp, tg, mean)
+```
+
+## The question and the data
+
+### Three doses × two supplement methods
+
+The experiment measured tooth length after vitamin C was delivered as **orange juice (OJ)** or **ascorbic acid (VC)**, at **0.5, 1, or 2 mg/day**.
+
+```{r dose-chart, fig.width=8, fig.height=4.2}
+cols <- c(OJ = "#087e8b", VC = "#f28f3b")
+plot(tg$dose + ifelse(tg$supp == "OJ", -0.035, 0.035), tg$len,
+     col = adjustcolor(cols[as.character(tg$supp)], alpha.f = 0.55),
+     pch = 16, xaxt = "n", xlab = "Dose (mg/day)", ylab = "Tooth length",
+     main = "Every animal, with group means")
+axis(1, at = c(0.5, 1, 2), labels = c("0.5", "1", "2"))
+for (s in levels(tg$supp)) {
+  m <- means[means$supp == s, ]
+  lines(m$dose, m$len, col = cols[s], lwd = 2)
+  points(m$dose, m$len, col = cols[s], pch = 18, cex = 1.4)
+}
+legend("topleft", legend = c("OJ", "VC", "Group mean"),
+       col = c(cols, "#343a40"), pch = c(16,16,18), lty = c(NA,NA,1), bty = "n")
+```
+
+**App purpose:** make dose-specific measurements and a cautious mean comparison easy to inspect without writing R code.
+
+## Inside the Shiny app
+
+### Two controls update the whole view
+
+- Choose a supplement with radio buttons.
+- Choose a dose from the three tested amounts.
+- The server reacts to both inputs: the summary, confidence interval, test, and chart update together.
+- Point the cursor at a dot to inspect an animal; the app's left panel explains every step.
+
+**The question stays simple:** what did these 10 animals show at this dose, and how uncertain is the average comparison?
+
+## What the app calculates
+
+### Pick one group; get a mean and an interval
+
+The user selects a supplement and dose. The app calculates the selected group's **sample mean** and **95% t confidence interval**, then compares it with the other supplement at that dose using a **Welch two-sample t-test**.
+
+```{r live-example, echo=TRUE}
+example <- subset(tg, dose == 0.5)
+oj <- subset(example, supp == "OJ")$len
+vc <- subset(example, supp == "VC")$len
+test <- t.test(oj, vc)
+cat(sprintf("0.5 mg/day: OJ mean %.2f; VC mean %.2f\n", mean(oj), mean(vc)))
+cat(sprintf("OJ - VC 95%% CI: %.2f to %.2f; p = %.4f", test$conf.int[1], test$conf.int[2], test$p.value))
+```
+
+The interactive chart shows each animal and the two group-mean curves. Hover details help users connect summary values to the observations.
+
+## A simple, transparent workflow
+
+### Choose · inspect · interpret
+
+1. Select **OJ** or **VC**.
+2. Choose a dose: **0.5**, **1**, or **2 mg/day**.
+3. Read the mean and 95% interval; compare the other supplement at the same dose.
+4. Hover over chart points to inspect individual measurements.
+
+**Built-in help:** the app contains usage instructions, definitions, and assumptions in its left-hand panel.
+
+**Limits:** each group has 10 animals. The intervals assume independent observations and approximately normal measurements within groups. Results describe this experiment; they do not prove effects for all animals or doses.
+
+**Run it:** `shiny::runApp("toothgrowth_shiny_app")`  
+**Data:** `datasets::ToothGrowth` (included with R)
+
